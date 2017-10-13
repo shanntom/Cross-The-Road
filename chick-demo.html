@@ -1,0 +1,59 @@
+<!-- Web page document containing the canvas, that launches javascript files //-->
+
+<!DOCTYPE html><html>
+<head>  <meta charset="UTF-8"/>
+<script type="text/javascript" src="MV.js"                       ></script>  
+<script type="text/javascript" src="webgl-obj-loader.js"         ></script>  
+<script type="text/javascript" src="tinywebgl-ucla.js"           ></script>  
+<script type="text/javascript" src="example-scene-components.js" ></script>
+<script type="text/javascript" src="example-shapes.js"           ></script>
+<script type="text/javascript" src="example-shaders.js"          ></script>
+
+<script type="text/javascript"> "use strict" 
+  window.onload = function init()           
+    {                                                                                      
+      window.contexts = { main_canvas: new Canvas_Manager( "gl-canvas", Color( .28, .52, .78, 1 ) ) }; 
+                                                                                                    
+      var shaders = [ "Phong_Model", "Funny_Shader", "Fake_Bump_Map" ];                          
+      for( let s of shaders )        contexts["main_canvas"].shaders_in_use [ s ] = ( new window[s]( contexts["main_canvas"].gl ) );   
+      
+      // Image files:
+      var texture_files_to_load = [ "assets/text.png", "assets/feather.png", "assets/fluffFeather.png", "assets/road.png", "assets/grass.png", "assets/linedRoad.png"];     
+      for( let f of texture_files_to_load ) contexts["main_canvas"].textures_in_use[ f ] = ( new Texture( contexts["main_canvas"].gl, f, true ) );      
+                                                                                     
+      var scene_components = [ "Debug_Screen", "Example_Camera", "Flag_Toggler" ];    
+      if( demos[0] == "" ) scene_components.push( "ChickGame" );              
+      else for( let d of demos ) scene_components.push( d.replace(/-/g,"_") ); 
+      for( let s of scene_components ) contexts["main_canvas"].register_scene_component( new window[s]( contexts["main_canvas"] ) ); 
+                                                                                                                                   
+      for( let c in contexts ) contexts[c].render();   
+    }
+  window.requestAnimFrame = ( function(w)           // Find the correct browser's version of requestAnimationFrame() needed for queue-ing up re-display events: 
+    { return w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.mozRequestAnimationFrame || w.oRequestAnimationFrame || w.msRequestAnimationFrame ||
+      function( callback, element ) { w.setTimeout(callback, 1000/60);  }; } )( window );  
+  var demos = [];                                                 
+  for ( let q of window.location.search.substring(1).split("&") ) 
+    demos.push( decodeURIComponent( q || "" ).replace(/[^_\W]+/g, (s) => s.charAt(0).toUpperCase() + s.substr(1).toLowerCase() ) );      
+</script>
+</head>
+
+<h1>Why did the chick cross the road? </h1>
+
+<body>
+
+<canvas id="gl-canvas" width="800" height="600"></canvas><p>
+
+<a href="#" onclick='document.getElementById( "instructions" ).style = "display:block"; this.style = "display:none";'>
+Click for instructions </a><div id="instructions" style = "display:none">
+Help the chick cross the road!
+<br><br>
+Controls<br>
+Up - to move chick along positive x axis<br>
+Down - to move chick along negative x axis<br>
+Right - to move chick along positive z axis<br>
+Left - to move chick along negative z axis<br><br>
+
+Press 't' to show frame rate on debug screen.
+
+
+</div></p></body></html>
